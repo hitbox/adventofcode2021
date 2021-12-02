@@ -4,7 +4,8 @@ import re
 from pathlib import Path
 
 def input_filename(day_number):
-    return f'inputs/day{day_number:02d}.input.txt'
+    path = Path('inputs') / f'day{day_number:02d}.input.txt'
+    return path
 
 def nincreasing(numbers):
     "Return the number of increasing numbers"
