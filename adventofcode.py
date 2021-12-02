@@ -47,6 +47,56 @@ def day01_part2():
     assert n == 1789, f'{n} != 1789'
     print(f'Day 1 Part 2 Solution: {n}')
 
+def day02_data():
+    with open(input_filename(2)) as fp:
+        instructions = (line.split() for line in fp)
+        instructions = [(dir, int(num)) for dir, num in instructions]
+        return instructions
+
+def navigate_submarine(instructions):
+    pos = {'h': 0, 'd': 0}
+    map = {'forward': ('h', 1), 'down': ('d', 1), 'up': ('d', -1)}
+    for direction, magnitude in instructions:
+        attr, scale = map[direction]
+        pos[attr] += scale * magnitude
+    return pos
+
+_day02_test = [('forward', 5), ('down', 5), ('forward', 8), ('up', 3), ('down', 8), ('forward', 2)]
+
+def day02_part1():
+    pos = navigate_submarine(_day02_test)
+    n = pos['h'] * pos['d']
+    assert n == 150, f'{n} != 105'
+
+    pos = navigate_submarine(day02_data())
+    n = pos['h'] * pos['d']
+    assert n == 1692075
+    print(f'Day 2 Part 1 Solution: {n}')
+
+def navigate_submarine2(instructions):
+    pos = {'h': 0, 'd': 0, 'a': 0}
+    for direction, mag in instructions:
+        if direction == 'down':
+            pos['a'] += mag
+        elif direction == 'up':
+            pos['a'] -= mag
+        elif direction == 'forward':
+            pos['h'] += mag
+            pos['d'] += pos['a'] * mag
+        # NOTE: thought about the new match statement here, but all it does is
+        #       add extra indent.
+    return pos
+
+def day02_part2():
+    pos = navigate_submarine2(_day02_test)
+    n = pos['h'] * pos['d']
+    assert n == 900, f'{n} != 900'
+
+    pos = navigate_submarine2(day02_data())
+    n = pos['h'] * pos['d']
+    assert n == 1749524700
+    print(f'Day 2 Part 1 Solution: {n}')
+
 _day_re = re.compile('day\d{2}')
 
 def main(argv=None):
