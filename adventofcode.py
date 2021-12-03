@@ -103,6 +103,62 @@ def day02_part2():
     assert n == 1749524700
     print(f'Day 2 Part 1 Solution: {n}')
 
+def day03_data():
+    with open(input_filename(3)) as fp:
+        return [int('0b' + line.strip(), base=2) for line in fp]
+
+def count_of(iterable):
+    d = {}
+    for value in iterable:
+        if value not in d:
+            d[value] = 0
+        d[value] += 1
+    return d
+
+def mkmasks(nbits):
+    masks = [1 << shift for shift in range(nbits)]
+    return masks
+
+def power_consumption(bnums, nbits):
+    masks = mkmasks(nbits)
+    # "first bit" in challenge refers to least significant bit (right-most).
+    as_rows = [[int((bnum & mask) != 0) for mask in masks] for bnum in bnums]
+    as_cols = list(zip(*as_rows))
+    as_cols_count = [count_of(col) for col in as_cols]
+
+    gamma_bits = [max(counts, key=lambda key: counts[key]) for counts in as_cols_count]
+    epsilon_bits = [min(counts, key=lambda key: counts[key]) for counts in as_cols_count]
+
+    gamma = int('0b' + ''.join(map(str, reversed(gamma_bits))), base=2)
+    epsilon = int('0b' + ''.join(map(str, reversed(epsilon_bits))), base=2)
+    solution = gamma * epsilon
+    return solution
+
+def day03_part1():
+    "Day 3 part 1"
+    # sample
+    bnums = [
+        0b00100,
+        0b11110,
+        0b10110,
+        0b10111,
+        0b10101,
+        0b01111,
+        0b00111,
+        0b11100,
+        0b10000,
+        0b11001,
+        0b00010,
+        0b01010,
+    ]
+    solution = power_consumption(bnums, 5)
+    assert solution == 198, f'{solution} != 198'
+
+    bnums = day03_data()
+    solution = power_consumption(bnums, 12)
+    assert solution == 4160394, f'{solution} != 4160394'
+    print(f'Day 3 Part 1 Solution: {solution}')
+
 _day_re = re.compile('day\d{2}')
 
 def main(argv=None):
