@@ -35,13 +35,13 @@ def day01_part2():
     """
     numbers = day01_data()
     data = {}
-    for offset in range(len(numbers)):
-        for index in range(offset, offset+3):
+    for window in range(len(numbers)):
+        for index in range(window, window+3):
             if index >= len(numbers):
                 break
-            if offset not in data:
-                data[offset] = 0
-            data[offset] += numbers[index]
+            if window not in data:
+                data[window] = 0
+            data[window] += numbers[index]
     values = [data[key] for key in sorted(data)]
     n = nincreasing(values)
     assert n == 1789, f'{n} != 1789'
