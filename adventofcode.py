@@ -129,17 +129,23 @@ def nsetbits(n):
     return count
 
 def power_consumption(bnums, nbits):
+    # should a "make masks" function generate them from most-significant to
+    # least instead? we just reverse here.
     masks = mkmasks(nbits)
-    # "first bit" in challenge refers to least significant bit (right-most).
+    masks.reverse()
+    # NOTE: "first bit" in challenge refers to least significant bit (right-most).
+    # separate bits into lists
     as_rows = [[int((bnum & mask) != 0) for mask in masks] for bnum in bnums]
+    # make column-wise
     as_cols = list(zip(*as_rows))
+    # count bits into dict
     as_cols_count = [count_of(col) for col in as_cols]
-
+    # grab highest/lowest counts of lists of bits
     gamma_bits = [max(counts, key=lambda key: counts[key]) for counts in as_cols_count]
     epsilon_bits = [min(counts, key=lambda key: counts[key]) for counts in as_cols_count]
-
-    gamma = int('0b' + ''.join(map(str, reversed(gamma_bits))), base=2)
-    epsilon = int('0b' + ''.join(map(str, reversed(epsilon_bits))), base=2)
+    # lists of bits back to number
+    gamma = int('0b' + ''.join(map(str, gamma_bits)), base=2)
+    epsilon = int('0b' + ''.join(map(str, epsilon_bits)), base=2)
     solution = gamma * epsilon
     return solution
 
