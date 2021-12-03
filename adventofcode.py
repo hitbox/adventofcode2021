@@ -8,7 +8,9 @@ def input_filename(day_number):
     return path
 
 def nincreasing(numbers):
-    "Return the number of increasing numbers"
+    """
+    Return the number of increasing numbers.
+    """
     return sum(1 for n1, n2 in zip(numbers[:-1], numbers[1:]) if n2 > n1)
 
 def day01_data():
@@ -67,7 +69,9 @@ def navigate_submarine(instructions):
 _day02_test = [('forward', 5), ('down', 5), ('forward', 8), ('up', 3), ('down', 8), ('forward', 2)]
 
 def day02_part1():
-    "Day 2 part 1 sample and challenge."
+    """
+    Day 2 part 1 sample and challenge.
+    """
     pos = navigate_submarine(_day02_test)
     n = pos['h'] * pos['d']
     assert n == 150, f'{n} != 105'
@@ -78,7 +82,9 @@ def day02_part1():
     print(f'Day 2 Part 1 Solution: {n}')
 
 def navigate_submarine2(instructions):
-    "More complicated submarine instruction application with 'aim' (a)."
+    """
+    More complicated submarine instruction application with 'aim' (a).
+    """
     pos = {'h': 0, 'd': 0, 'a': 0}
     for direction, mag in instructions:
         if direction == 'down':
@@ -93,7 +99,9 @@ def navigate_submarine2(instructions):
     return pos
 
 def day02_part2():
-    "Day 2 part 2 sample and challenge."
+    """
+    Day 2 part 2 sample and challenge.
+    """
     pos = navigate_submarine2(_day02_test)
     n = pos['h'] * pos['d']
     assert n == 900, f'{n} != 900'
@@ -120,7 +128,9 @@ def mkmasks(nbits):
     return masks
 
 def nsetbits(n):
-    "Count set bits in `n`"
+    """
+    Count set bits in `n`
+    """
     # no intuition for binary--had to look this up again.
     count = 0
     while n > 0:
@@ -150,7 +160,9 @@ def power_consumption(bnums, nbits):
     return solution
 
 def day03_part1():
-    "Day 3 part 1"
+    """
+    Day 3 part 1
+    """
     # sample
     bnums = [
         0b00100,
