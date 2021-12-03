@@ -54,6 +54,9 @@ def day02_data():
         return instructions
 
 def navigate_submarine(instructions):
+    """
+    Map instructions to attributes of position and apply magnitude.
+    """
     pos = {'h': 0, 'd': 0}
     map = {'forward': ('h', 1), 'down': ('d', 1), 'up': ('d', -1)}
     for direction, magnitude in instructions:
@@ -64,6 +67,7 @@ def navigate_submarine(instructions):
 _day02_test = [('forward', 5), ('down', 5), ('forward', 8), ('up', 3), ('down', 8), ('forward', 2)]
 
 def day02_part1():
+    "Day 2 part 1 sample and challenge."
     pos = navigate_submarine(_day02_test)
     n = pos['h'] * pos['d']
     assert n == 150, f'{n} != 105'
@@ -74,6 +78,7 @@ def day02_part1():
     print(f'Day 2 Part 1 Solution: {n}')
 
 def navigate_submarine2(instructions):
+    "More complicated submarine instruction application with 'aim' (a)."
     pos = {'h': 0, 'd': 0, 'a': 0}
     for direction, mag in instructions:
         if direction == 'down':
@@ -88,6 +93,7 @@ def navigate_submarine2(instructions):
     return pos
 
 def day02_part2():
+    "Day 2 part 2 sample and challenge."
     pos = navigate_submarine2(_day02_test)
     n = pos['h'] * pos['d']
     assert n == 900, f'{n} != 900'
