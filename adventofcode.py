@@ -4,6 +4,10 @@ import re
 from collections import Counter
 from pathlib import Path
 
+class AdventOfError(Exception):
+    pass
+
+
 def input_filename(day_number):
     path = Path('inputs') / f'day{day_number:02d}.input.txt'
     return path
@@ -124,6 +128,10 @@ def count_of(iterable):
         d[value] += 1
     return d
 
+def sort_common(counts, n=1, reverse=False):
+    # reverse = True for most common, False for least
+    return sorted(counts, key=lambda k: counts[k], reverse=reverse)[:n]
+
 def mkmasks(nbits):
     masks = [1 << shift for shift in range(nbits)]
     return masks
@@ -190,26 +198,45 @@ def day03_part1():
 def isbitset(n, k):
     return (n >> k) & 1
 
+def bit_filtering(bnums, bitlength, most_or_least, bit_if_equal):
+    if most_or_least not in ('most', 'least'):
+        raise AdventOfError('most_or_least must be "most" or "least".')
+    reverse = True if most_or_least == 'most' else False
+    bnums = bnums[:]
+    # filter by most/least common bit in a position
+    while len(bnums) > 1:
+        for k in range(bitlength-1, -1, -1):
+            # bit at k-th position of all bnums
+            bits = [n >> k & 1 for n in bnums]
+            counts = count_of(bits)
+            if counts[0] == counts[1]:
+                # equally common
+                filter_bit = bit_if_equal
+            else:
+                filter_bit = sort_common(counts, reverse=reverse)[0]
+            bnums = [n for n in bnums if n >> k & 1 == filter_bit]
+            if len(bnums) == 1:
+                break
+    return bnums[0]
+
 def day03_part2():
     """
     Day 3 part 2
     """
     # sample
-    bnums = _day3_sample_bnums[:]
-    from pprint import pprint
-    while len(bnums) > 1:
-        for k in range(5,0,-1):
-            bits = [(n >> k - 1) & 1 for n in bnums]
-            print(bits)
-            return
-            most_common_bit = Counter(bits).most_common(1)[0][0]
-            bnums = [n for n in bnums if n >> k == most_common_bit]
-            if len(bnums) == 1:
-                break
-            print(bnums)
-    print(bnums)
-
-_day_re = re.compile('day\d{2}')
+    oxygen_generator_rating = bit_filtering(_day3_sample_bnums, 5, 'most', 1)
+    assert oxygen_generator_rating == 23, f'{oxygen_generator_rating=} != 23'
+    co2_scrubber_rating = bit_filtering(_day3_sample_bnums, 5, 'least', 0)
+    assert co2_scrubber_rating == 10, f'{co2_scrubber_rating=} != 10'
+    life_support_rating = oxygen_generator_rating * co2_scrubber_rating
+    assert life_support_rating == 230, f'{life_support_rating=} != 230'
+    # challenge
+    bnums = day03_data()
+    oxygen_generator_rating = bit_filtering(bnums, 12, 'most', 1)
+    co2_scrubber_rating = bit_filtering(bnums, 12, 'least', 0)
+    life_support_rating = oxygen_generator_rating * co2_scrubber_rating
+    assert life_support_rating == 4125600, f'{life_support_rating=} != 4125600'
+    print(f'Day 3 part 2 Solution: {life_support_rating}')
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
