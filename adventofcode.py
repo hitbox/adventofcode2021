@@ -238,6 +238,127 @@ def day03_part2():
     assert life_support_rating == 4125600, f'{life_support_rating=} != 4125600'
     print(f'Day 3 part 2 Solution: {life_support_rating}')
 
+_day04_sample = """\
+7,4,9,5,11,17,23,2,0,14,21,24,10,16,13,6,15,25,12,22,18,20,8,19,3,26,1
+
+22 13 17 11  0
+ 8  2 23  4 24
+21  9 14 16  7
+ 6 10  3 18  5
+ 1 12 20 15 19
+
+ 3 15  0  2 22
+ 9 18 13 17  5
+19  8  7 25 23
+20 11 10 24  4
+14 21 16 12  6
+
+14 21 17 24  4
+10 16 15  9 19
+18  8 23 26 20
+22 11 13  6  5
+ 2  0 12  3  7"""
+
+class BingoCell:
+
+    def __init__(self, value):
+        self.value = value
+        self.is_marked = False
+
+    def __repr__(self):
+        s = str(self.value)
+        if self.is_marked:
+            s += '*'
+        return f'{s: >3}'
+
+
+def parse_bingo_string(s):
+    drawn_numbers, *boards = re.split('^$', s, flags=re.MULTILINE)
+    drawn_numbers = list(map(int, drawn_numbers.split(',')))
+    boards = [
+        [
+            list(map(BingoCell, map(int, rowline.split())))
+            for rowline in board.splitlines() if rowline
+        ]
+        for board in boards
+    ]
+    return drawn_numbers, boards
+
+def is_win_board(board):
+    for row in board:
+        if all(cell.is_marked for cell in row):
+            return True
+    for col in zip(*board):
+        if all(cell.is_marked for cell in col):
+            return True
+    return False
+
+def day04_data():
+    with open(input_filename(4)) as fp:
+        return fp.read()
+
+def update_board(board, drawn_number):
+    for row in board:
+        for cell in row:
+            if drawn_number == cell.value:
+                cell.is_marked = True
+
+def play_bingo(drawn_numbers, boards, last_winner=False):
+    # probably should bust up between playing bingo and calculating score.
+    boards = boards[:]
+    winners = []
+    # draw numbers, updating boards, removing winners and stopping when no
+    # boards are playing.
+    for drawn_number in drawn_numbers:
+        todo = []
+        for board in boards:
+            update_board(board, drawn_number)
+            if is_win_board(board):
+                # leave pop(ed)
+                winners.append((drawn_number, board))
+                todo.append(board)
+        for board in todo:
+            boards.remove(board)
+        if not boards:
+            break
+    index = 0 if not last_winner else -1
+    winning_number, winner = winners[index]
+    unmarked_sum = sum(cell.value for row in winner for cell in row if not cell.is_marked)
+    score = winning_number * unmarked_sum
+    return score
+
+def day04_part1():
+    """
+    Day 4 part 1
+    """
+    # sample
+    drawn_numbers, boards = parse_bingo_string(_day04_sample)
+    winners = [board for board in boards if is_win_board(board)]
+    assert len(winners) == 0, f'{len(winners)=} != 0 for initial'
+    score = play_bingo(drawn_numbers, boards)
+    assert score == 4512, f'{score=} != 4512'
+    # challenge
+    drawn_numbers, boards = parse_bingo_string(day04_data())
+    score = play_bingo(drawn_numbers, boards)
+    assert score == 23177, f'{score=} != 23177'
+    print(f'Day 4 part 1 Solution: {score}')
+
+def day04_part2():
+    """
+    Day 4 part 2
+    """
+    # sample
+    drawn_numbers, boards = parse_bingo_string(_day04_sample)
+    winners = [board for board in boards if is_win_board(board)]
+    assert len(winners) == 0, f'{len(winners)=} != 0 for initial'
+    score = play_bingo(drawn_numbers, boards, last_winner=True)
+    assert score == 1924, f'{score=} != 1924'
+    # challenge
+    drawn_numbers, boards = parse_bingo_string(day04_data())
+    score = play_bingo(drawn_numbers, boards, last_winner=True)
+    assert score == 6804, f'{score=} != 6804'
+    print(f'Day 4 part 2 Solution: {score}')
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('day')
