@@ -1,6 +1,7 @@
 import argparse
 import re
 
+from collections import Counter
 from pathlib import Path
 
 def input_filename(day_number):
@@ -159,32 +160,54 @@ def power_consumption(bnums, nbits):
     solution = gamma * epsilon
     return solution
 
+_day3_sample_bnums = [
+    0b00100,
+    0b11110,
+    0b10110,
+    0b10111,
+    0b10101,
+    0b01111,
+    0b00111,
+    0b11100,
+    0b10000,
+    0b11001,
+    0b00010,
+    0b01010,
+]
+
 def day03_part1():
     """
     Day 3 part 1
     """
-    # sample
-    bnums = [
-        0b00100,
-        0b11110,
-        0b10110,
-        0b10111,
-        0b10101,
-        0b01111,
-        0b00111,
-        0b11100,
-        0b10000,
-        0b11001,
-        0b00010,
-        0b01010,
-    ]
-    solution = power_consumption(bnums, 5)
+    solution = power_consumption(_day3_sample_bnums, 5)
     assert solution == 198, f'{solution} != 198'
-
+    # part 1
     bnums = day03_data()
     solution = power_consumption(bnums, 12)
     assert solution == 4160394, f'{solution} != 4160394'
     print(f'Day 3 Part 1 Solution: {solution}')
+
+def isbitset(n, k):
+    return (n >> k) & 1
+
+def day03_part2():
+    """
+    Day 3 part 2
+    """
+    # sample
+    bnums = _day3_sample_bnums[:]
+    from pprint import pprint
+    while len(bnums) > 1:
+        for k in range(5,0,-1):
+            bits = [(n >> k - 1) & 1 for n in bnums]
+            print(bits)
+            return
+            most_common_bit = Counter(bits).most_common(1)[0][0]
+            bnums = [n for n in bnums if n >> k == most_common_bit]
+            if len(bnums) == 1:
+                break
+            print(bnums)
+    print(bnums)
 
 _day_re = re.compile('day\d{2}')
 
