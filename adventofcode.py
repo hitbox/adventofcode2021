@@ -217,6 +217,8 @@ def main(argv=None):
     parser.add_argument('part', choices=[1, 2], type=int)
     args = parser.parse_args(argv)
 
+    _day_re = re.compile('day\d{2}')
+
     if not _day_re.match(args.day):
         parser.error(f'command must match pattern {_day_re.pattern}.')
 
