@@ -1,4 +1,5 @@
 import argparse
+import math
 import re
 
 from collections import Counter
@@ -358,6 +359,94 @@ def day04_part2():
     score = play_bingo(drawn_numbers, boards, last_winner=True)
     assert score == 6804, f'{score=} != 6804'
     print(f'Day 4 part 2 Solution: {score}')
+
+_day05_sample = """\
+0,9 -> 5,9
+8,0 -> 0,8
+9,4 -> 3,4
+2,2 -> 2,1
+7,0 -> 7,4
+6,4 -> 2,0
+0,9 -> 2,9
+3,4 -> 1,4
+0,0 -> 8,8
+5,5 -> 8,2"""
+
+def strtupint(s):
+    return tuple(map(int, s.split(',')))
+
+def parse_line_segments_string(s):
+    line_segments = []
+    for textline in s.splitlines():
+        p1, p2 = textline.split(' -> ')
+        p1 = strtupint(p1)
+        p2 = strtupint(p2)
+        line_segments.append((p1, p2))
+    return line_segments
+
+def is_flat(p1, p2):
+    """
+    The line segment is flat horizontally or vertically.
+    """
+    return p1[0] == p2[0] or p1[1] == p2[1]
+
+def walk_line(p1, p2):
+    """
+    Generate points along a line segment that is flat horizontally or
+    vertically; or is perfectly diagonal.
+    """
+    x, y = p1
+    if p2[0] != x:
+        dx = int(math.copysign(1, p2[0] - x))
+    else:
+        dx = 0
+    if p2[1] != y:
+        dy = int(math.copysign(1, p2[1] - y))
+    else:
+        dy = 0
+    while (x,y) != p2:
+        yield (x, y)
+        x += dx
+        y += dy
+    yield p2
+
+def day05_data():
+    with open(input_filename(5)) as fp:
+        return fp.read()
+
+def count_lines_overlap(line_segments_string, only_flat=True):
+    line_segments = parse_line_segments_string(line_segments_string)
+    if only_flat:
+        line_segments = [seg for seg in line_segments if is_flat(*seg)]
+    grid = Counter(pos for seg in line_segments for pos in walk_line(*seg))
+    n = sum(1 for key, count in grid.items() if count > 1)
+    return n
+
+def day05_part1():
+    """
+    Day 5 part 1
+    """
+    # only considers flat lines
+    # sample
+    n = count_lines_overlap(_day05_sample)
+    assert n == 5, f'{n=} != 5'
+    # challenge
+    n = count_lines_overlap(day05_data())
+    assert n == 5197, f'{n=} != 5197'
+    print(f'Day 5 Part 1 Solution: {n}')
+
+def day05_part2():
+    """
+    Day 5 part 2
+    """
+    # includes diagonals
+    # sample
+    n = count_lines_overlap(_day05_sample, only_flat=False)
+    assert n == 12
+    # challenge
+    n = count_lines_overlap(day05_data(), only_flat=False)
+    assert n == 18605, f'{n=} != 18605'
+    print(f'Day 5 Part 2 Solution: {n}')
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
