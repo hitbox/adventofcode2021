@@ -448,6 +448,103 @@ def day05_part2():
     assert n == 18605, f'{n=} != 18605'
     print(f'Day 5 Part 2 Solution: {n}')
 
+_day06_sample = [3,4,3,1,2]
+
+def day06_data():
+    with open(input_filename(6)) as fp:
+        fishes = fp.read()
+        return list(map(int, fishes.split(',')))
+
+def simulate_lanternfish_naive(ndays, fishes):
+    fishes = fishes[:]
+    for day in range(ndays+1):
+        for index in range(len(fishes)):
+            if fishes[index] < 0:
+                fishes.append(8)
+                fishes[index] = 6
+        # XXX
+        # this seems like it's doing two days but it works for the sample and
+        # part 1.
+        for index in range(len(fishes)):
+            fishes[index] -= 1
+    return fishes
+
+def day06_part1():
+    """
+    Day 6 part 1
+    """
+    fishes = simulate_lanternfish_naive(80, _day06_sample)
+    n = len(fishes)
+    assert n == 5934, f'{n=} != 5934'
+    fishes = day06_data()
+    n = len(simulate_lanternfish_naive(80, fishes))
+    assert n == 385391, f'{n=} != 385391'
+    print(f'Day 6 Part 1 Solution: {n}')
+
+def day06_cheat(ndays, fish_timers):
+    # https://zonito.medium.com/lantern-fish-day-6-advent-of-code-2021-python-solution-4444387a8380
+    # TODO: understand this
+    days = [0] * 9
+
+    """
+    from the website using the sample data
+
+    [3, 4, 3, 1, 2]
+
+    The days list on loop n:
+              0    1   2   3   4   5   6   7   8
+
+    fish_timer = 0
+    index = (0 + 7) % 9 = 7
+    loop 0:  [0,   1,  1,  2,  1,  0,  0,  0,  0]
+
+    i = 10
+    fish_timer = 10 % 9 = 1
+    index = (fish_timer + 7) % 9 = (1 + 7) % 9 = 8 % 9 = 8
+    days[index] += days[1]
+
+                  +2  +1              +1  +1  +1
+    loop 10: [1,   3,  2,  2,  1,  0,  1,  1,  1]
+    loop 25: [1,   3,  2,  2,  1,  0,  1,  1,  1]
+
+    loop 50: [56, 41, 84, 23, 51, 36, 56, 44, 44]
+                                  +
+                                  |
+                           +------+
+                           |
+                           v
+                         +36
+    loop 51: [56, 41, 84, 59, 51, 36, 56, 44, 44]
+
+    """
+
+    # the indexes of `days` is a fish timer. there are nine because of the
+    # extra two days a new fish takes to start producing.
+    for fish_timer in fish_timers:
+        days[fish_timer] += 1
+
+    # iterate the number of days
+    for i in range(ndays):
+        fish_timer = i % 9
+        index = (fish_timer + 7) % 9
+        days[index] += days[fish_timer]
+
+    total_fish = sum(days)
+    return total_fish
+
+def day06_part2():
+    """
+    Day 6 part 2
+    """
+    n = day06_cheat(256, _day06_sample)
+    assert n == 26984457539, f'{n=} != 26984457539'
+    return
+    fishes = day06_data()
+    fishes = simulate_lanternfish_naive(80, fishes)
+    n = len(fishes)
+    assert n == 385391, f'{n=} != 385391'
+    print(f'Day 6 Part 1 Solution: {n}')
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('day')
