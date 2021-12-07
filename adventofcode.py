@@ -487,8 +487,6 @@ def day06_part1():
 def day06_cheat(ndays, fish_timers):
     # https://zonito.medium.com/lantern-fish-day-6-advent-of-code-2021-python-solution-4444387a8380
     # TODO: understand this
-    days = [0] * 9
-
     """
     from the website using the sample data
 
@@ -519,7 +517,11 @@ def day06_cheat(ndays, fish_timers):
                          +36
     loop 51: [56, 41, 84, 59, 51, 36, 56, 44, 44]
 
+    Study this link:
+    https://cestlaz.github.io/post/advent-2021-day06/
+    it looks like a better explanation of the [0]*9 structure above.
     """
+    days = [0] * 9
 
     # the indexes of `days` is a fish timer. there are nine because of the
     # extra two days a new fish takes to start producing.
