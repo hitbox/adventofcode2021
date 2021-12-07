@@ -576,6 +576,37 @@ def day07_part1():
 def increasing_move_cost(p1, p2):
     return sum(1+i for i in range(abs(p1-p2)))
 
+def increasing_move_cost(p1, p2):
+    """
+    here we go, this got the speed up:
+    $ time python adventofcode.py day07 2
+    Day 7 Part 2 Solution: 97038163
+
+    real	0m0.230s
+    user	0m0.212s
+    sys	0m0.003s
+
+    On an AMD Ryzen 7 2700X Eight-Core Processor
+
+    Apparently this is attributed to a young Gauss but there seems to be some dispute.
+
+    Need to remember how to sum numbers from 1 to n
+    n(n+1)
+    ------
+       2
+
+    notice there are n/2 * n+1 by grouping the sums by first and last, second
+    and second-to-last, etc.
+
+    1, 2, 3, ..., n-2, n-1, n
+    |  |  |       |    |    |
+    |  |  +- n+1 -+    |    |
+    |  +---- n+1 ------+    |
+    +------- n+1 -----------+
+    """
+    n = abs(p1 - p2)
+    return (n * (n + 1)) // 2
+
 def day07_part2():
     """
     Day 7 Part 2
