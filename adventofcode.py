@@ -1,9 +1,12 @@
 import argparse
+import functools
 import math
 import re
 
 from collections import Counter
 from pathlib import Path
+
+from least_amount_fuel import least_amount_fuel
 
 class AdventOfError(Exception):
     pass
@@ -544,6 +547,44 @@ def day06_part2():
     n = len(fishes)
     assert n == 385391, f'{n=} != 385391'
     print(f'Day 6 Part 1 Solution: {n}')
+
+_day07_sample = [16,1,2,0,4,2,7,1,2,14]
+
+def day07_data():
+    with open(input_filename(7)) as fp:
+        return list(map(int, fp.read().split(',')))
+
+def absdiff(p1, p2):
+    return abs(p1 - p2)
+
+def day07_part1():
+    """
+    Day 7 Part 1
+    """
+    # NOTE: function in another module
+    fuel = least_amount_fuel(_day07_sample, costfunc=absdiff)
+    assert fuel == 37, f'{fuel=} != 37'
+    hpos = day07_data()
+    fuel = least_amount_fuel(hpos, costfunc=absdiff)
+    assert fuel == 345035, f'{fuel=} != 345035'
+    print(f'Day 7 Part 1 Solution: {fuel}')
+
+# lru_cache shaved about 5 seconds off part 2, down to 15s
+@functools.lru_cache(maxsize=None)
+def increasing_move_cost(p1, p2):
+    return sum(1+i for i in range(abs(p1-p2)))
+
+def day07_part2():
+    """
+    Day 7 Part 2
+    """
+    # NOTE: function in another module
+    fuel = least_amount_fuel(_day07_sample, costfunc=increasing_move_cost)
+    assert fuel == 168, f'{fuel=} != 168'
+    hpos = day07_data()
+    fuel = least_amount_fuel(hpos, costfunc=increasing_move_cost)
+    assert fuel == 97038163, f'{fuel=} != 97038163'
+    print(f'Day 7 Part 2 Solution: {fuel}')
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
