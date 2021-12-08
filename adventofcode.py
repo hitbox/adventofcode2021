@@ -4,17 +4,16 @@ import math
 import re
 
 from collections import Counter
-from pathlib import Path
 
 from least_amount_fuel import least_amount_fuel
+
+from day08 import day08_part1
+from day08 import day08_part2
+from util import input_filename
 
 class AdventOfError(Exception):
     pass
 
-
-def input_filename(day_number):
-    path = Path('inputs') / f'day{day_number:02d}.input.txt'
-    return path
 
 def nincreasing(numbers):
     """
