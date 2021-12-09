@@ -1,4 +1,5 @@
 import argparse
+import operator
 import functools
 import math
 import re
@@ -617,6 +618,137 @@ def day07_part2():
     fuel = least_amount_fuel(hpos, costfunc=increasing_move_cost)
     assert fuel == 97038163, f'{fuel=} != 97038163'
     print(f'Day 7 Part 2 Solution: {fuel}')
+
+_day09_example = """\
+2199943210
+3987894921
+9856789892
+8767896789
+9899965678"""
+
+def parse_height_map(s):
+    return list(list(map(int, line)) for line in s.splitlines())
+
+def adjacent_height_indexes(heightmap, row, col):
+    # top, right, bottom, left
+    if row-1 >= 0:
+        yield row-1, col
+    if col+1 < len(heightmap[0]):
+        yield row, col + 1
+    if row+1 < len(heightmap):
+        yield row+1, col
+    if col-1 >= 0:
+        yield row, col - 1
+
+def iter_table_indexes(t):
+    for r, row in enumerate(t):
+        for c, cell in enumerate(row):
+            yield (r, c)
+
+def tables_match(t1, t2):
+    assert len(t1) == len(t2)
+    for r1, r2 in zip(t1, t2):
+        assert len(r1) == len(r2)
+    for r, c in iter_table_indexes(t1):
+        if t1[r][c] != t2[r][c]:
+            return False
+    return True
+
+def iterate_height_map(heightmap):
+    for rowi, row in enumerate(heightmap):
+        for coli, height in enumerate(row):
+            yield ((rowi, coli), height)
+
+def compute_risk_level(heightmap):
+    lowest = []
+    for ((r, c), height) in iterate_height_map(heightmap):
+        if all(
+            height < heightmap[adjrow][adjcol]
+            for adjrow, adjcol in adjacent_height_indexes(heightmap, r, c)
+        ):
+            lowest.append(((r,c), height))
+    risk_level = sum(height+1 for _, height in lowest)
+    return risk_level
+
+def day09_data():
+    with open(input_filename(9)) as fp:
+        return fp.read()
+
+def day09_part1():
+    """
+    Day 9 Part 1
+    """
+    # example
+    heightmap = parse_height_map(_day09_example)
+    risk_level = compute_risk_level(heightmap)
+    assert risk_level == 15, f'{risk_level=} != 15'
+    # challenge
+    heightmap = parse_height_map(day09_data())
+    risk_level = compute_risk_level(heightmap)
+    assert risk_level == 468, f'{risk_level=} != 468'
+    print(f'Day 9 Part 1 Solution: {risk_level=}')
+
+def flood(heightmap, pos, parent=None):
+    result = [[None for col in row ] for row in heightmap]
+    q = []
+    r, c = pos
+    height = heightmap[r][c]
+    if height < 9:
+        result[r][c] = height
+        q.append(pos)
+    while q:
+        r, c = q.pop()
+        for adjr, adjc in adjacent_height_indexes(heightmap, r, c):
+            height = heightmap[adjr][adjc]
+            if height < 9 and result[adjr][adjc] is None:
+                result[adjr][adjc] = height
+                q.append((adjr, adjc))
+    return result
+
+def basin_size(basin):
+    return sum(1 for row in basin for col in row if col is not None)
+
+def get_basins(heightmap):
+    basins = []
+    for pos, _ in iterate_height_map(heightmap):
+        basin = flood(heightmap, pos)
+        size = basin_size(basin)
+        if size > 0 and not any(tables_match(basin, existing) for existing in basins):
+            basins.append(basin)
+    return basins
+
+def basins_result(basins):
+    top_three = sorted(basins, key=basin_size)[-3:]
+    result = functools.reduce(operator.mul, map(basin_size, top_three))
+    return result
+
+def day09_part2():
+    """
+    Day 9 Part 2
+    """
+    # example
+    heightmap = parse_height_map(_day09_example)
+    basins = get_basins(heightmap)
+    result = basins_result(basins)
+    assert result == 1134, f'{result=} != 1134'
+    # challenge
+    heightmap = parse_height_map(day09_data())
+    basins = get_basins(heightmap)
+    result = basins_result(basins)
+    assert result == 1280496, f'{result=} != 1280496'
+    print(f'Day 9 Part 2 Solution: {result=}')
+    # XXX
+    # This took five minutes
+    # * better way to check existing?
+    # * avoid column/row nesting?
+    #
+    # $ time python adventofcode.py day09 2
+    # Day 9 Part 2 Solution: result=1280496
+    # 
+    # real	5m8.441s
+    # user	5m7.902s
+    # sys	0m0.053s
+
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
