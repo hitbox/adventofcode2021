@@ -744,11 +744,10 @@ def day09_part2():
     #
     # $ time python adventofcode.py day09 2
     # Day 9 Part 2 Solution: result=1280496
-    # 
+    #
     # real	5m8.441s
     # user	5m7.902s
     # sys	0m0.053s
-
 
 def main(argv=None):
     parser = argparse.ArgumentParser()
