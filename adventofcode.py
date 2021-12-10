@@ -749,6 +749,129 @@ def day09_part2():
     # user	5m7.902s
     # sys	0m0.053s
 
+_day10_example = """\
+[({(<(())[]>[[{[]{<()<>>
+[(()[<>])]({[<{<<[]>>(
+{([(<{}[<>[]}>{[]{[(<()>
+(((({<>}<{<{<>}{[]{[]{}
+[[<[([]))<([[{}[[()]]]
+[{[{({}]{}}([{[{{{}}([]
+{<[[]]>}<{[{[{[]{()[[[]
+[<(<(<(<{}))><([]([]()
+<{([([[(<>()){}]>(<<{{
+<{([{{}}[<[[[<>{}]]]>[]]"""
+
+opens = '([{<'
+closes = ')]}>'
+closes_points = {')': 3, ']': 57, '}': 1197, '>': 25137}
+completer_points = {closer:points for points,closer in enumerate(closes, start=1)}
+
+class Day10Corrupted(Exception):
+
+    def __init__(self, opener, corrupter):
+        self.opener = opener
+        self.corrupter = corrupter
+
+    def __str__(self):
+        expected = closes[opens.index(self.opener)]
+        return f'Expected {expected} but found {self.corrupter} instead.'
+
+
+def process_syntax(line):
+    q = []
+    for char in line:
+        if char in opens:
+            q.append(char)
+        elif char in closes:
+            closer = char
+            opener = q.pop()
+            if closes.index(closer) != opens.index(opener):
+                raise Day10Corrupted(opener=opener, corrupter=closer)
+    incomplete = q
+    return incomplete
+
+def get_corrupted(lines):
+    """
+    Capture and return the corrupted lines--incorrect closing character.
+    """
+    corrupted = []
+    for line in lines.splitlines():
+        try:
+            process_syntax(line)
+        except Day10Corrupted as e:
+            corrupted.append(e)
+    return corrupted
+
+def get_incomplete(lines):
+    incompletes = []
+    for line in lines.splitlines():
+        try:
+            incomplete = process_syntax(line)
+        except Day10Corrupted:
+            # ignore corrupted
+            pass
+        else:
+            if incomplete:
+                incompletes.append(incomplete)
+    return incompletes
+
+def get_corrupted_points(string):
+    corrupted = get_corrupted(string)
+    points = sum(closes_points[error.corrupter] for error in corrupted)
+    return points
+
+def get_completers(incompletes):
+    return [closes[opens.index(opener)] for opener in incompletes]
+
+def day10_part1():
+    """
+    Day 10 Part 1
+    """
+    # example
+    points = get_corrupted_points(_day10_example)
+    assert points == 26397, f'{points=} != 26397'
+    # challenge
+    string = open(input_filename(10)).read()
+    points = get_corrupted_points(string)
+    assert points == 462693, f'{points=} != 462693'
+    print(f'Day 10 Part 1 Solution: {points=}')
+
+def score_completers(completers):
+    score = 0
+    for closer in completers:
+        p = completer_points[closer]
+        score *= 5
+        score += p
+    return score
+
+def get_score_for_completion(string):
+    incompletes_for_lines = get_incomplete(string)
+    points = []
+    for incompletes in incompletes_for_lines:
+        completes = []
+        while incompletes:
+            incomchar = incompletes.pop()
+            comchar = closes[opens.index(incomchar)]
+            completes.append(comchar)
+        score = score_completers(completes)
+        points.append(score)
+    points = sorted(points)
+    middle = points[len(points)//2]
+    return middle
+
+def day10_part2():
+    """
+    Day 10 Part 2
+    """
+    # example
+    middle = get_score_for_completion(_day10_example)
+    assert middle == 288957, f'{middle=} != 288957'
+    # challenge
+    string = open(input_filename(10)).read()
+    middle = get_score_for_completion(string)
+    assert middle == 3094671161, f'{middle=} != 3094671161'
+    print(f'Day 10 Part 2 Solution: {middle=}')
+
 def main(argv=None):
     parser = argparse.ArgumentParser()
     parser.add_argument('day')
