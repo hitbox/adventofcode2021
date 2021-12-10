@@ -778,6 +778,10 @@ class Day10Corrupted(Exception):
 
 
 def process_syntax(line):
+    """
+    Process a line of openers and closers, raising for corrupted closers. If no
+    corrupted closers, return incomplete openers.
+    """
     q = []
     for char in line:
         if char in opens:
@@ -803,6 +807,10 @@ def get_corrupted(lines):
     return corrupted
 
 def get_incomplete(lines):
+    """
+    Process all syntax lines, ignoring corrupted exceptions, and returning the
+    incomplete openers.
+    """
     incompletes = []
     for line in lines.splitlines():
         try:
@@ -816,6 +824,9 @@ def get_incomplete(lines):
     return incompletes
 
 def get_corrupted_points(string):
+    """
+    Calculate points from corrupted closers for all lines in `string`.
+    """
     corrupted = get_corrupted(string)
     points = sum(closes_points[error.corrupter] for error in corrupted)
     return points
@@ -834,6 +845,10 @@ def day10_part1():
     print(f'Day 10 Part 1 Solution: {points=}')
 
 def score_completers(completers):
+    """
+    Calculate the score from characters that would complete the incomplete
+    openers for a single syntax line.
+    """
     score = 0
     for closer in completers:
         p = completer_points[closer]
@@ -842,6 +857,11 @@ def score_completers(completers):
     return score
 
 def get_score_for_completion(string):
+    """
+    Calculate the total score for completers from all lines of syntax `string`.
+    The score is the middle element of the list of points for the lines in
+    `string`.
+    """
     incompletes_for_lines = get_incomplete(string)
     points = []
     for incompletes in incompletes_for_lines:
