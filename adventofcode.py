@@ -820,9 +820,6 @@ def get_corrupted_points(string):
     points = sum(closes_points[error.corrupter] for error in corrupted)
     return points
 
-def get_completers(incompletes):
-    return [closes[opens.index(opener)] for opener in incompletes]
-
 def day10_part1():
     """
     Day 10 Part 1
