@@ -1,3 +1,7 @@
+import argparse
+import curses
+import time
+
 from collections import deque
 
 from util import input_filename
@@ -112,3 +116,67 @@ def day11_part2():
     step = octopus_allflash(table)
     assert step == 265, f'{step=} != 265'
     print(f'Day 11 Part 2 Solution: {step=}')
+
+def draw_table(stdscr, table, highlight_positions=None, starty=None, startx=None):
+    if highlight_positions is None:
+        highlight_positions = set()
+    if starty is None:
+        starty = 0
+    if startx is None:
+        startx = 0
+    for y, row in enumerate(table, start=starty):
+        for x, cell in enumerate(row, start=startx):
+            pos = (y - starty, x - startx)
+            if pos in highlight_positions:
+                attributes = curses.A_REVERSE
+            else:
+                attributes = 0
+            stdscr.addstr(y, x, str(cell), attributes)
+
+def visday11part2(stdscr, table, timestep):
+    # hide cursor
+    curses.curs_set(False)
+    height, width = stdscr.getmaxyx()
+    starty = height // 2 - len(table) // 2
+    startx = width // 2 - len(table[0]) // 2
+    step = 0
+
+    def draw(flashed):
+        stdscr.addstr(len(table) + starty + 2, startx, f'step: {step}')
+        draw_table(
+            stdscr,
+            table,
+            highlight_positions = flashed,
+            starty = starty,
+            startx = startx,
+        )
+        stdscr.refresh()
+
+    while not is_allflash(table):
+        flashed = octopus_step(table)
+        step += 1
+        draw(flashed)
+        time.sleep(timestep)
+
+    stdscr.addstr(starty + len(table) + 3, startx, 'Any key to exit')
+    stdscr.refresh()
+    stdscr.getkey()
+
+def main(argv=None):
+    """
+    Visualize Day 11 Part 2 with curses.
+    """
+    parser = argparse.ArgumentParser(description=main.__doc__)
+    parser.add_argument('--steptime', metavar='T', type=int, default=50,
+            help='%(metavar)s/1000 timestep. Default: %(default)s')
+    args = parser.parse_args(argv)
+
+    string = open(input_filename(11)).read()
+    table = parse_octopus_energy(string)
+    try:
+        curses.wrapper(visday11part2, table, args.steptime / 1000)
+    except KeyboardInterrupt:
+        pass
+
+if __name__ == '__main__':
+    main()
