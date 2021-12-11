@@ -110,4 +110,5 @@ def day11_part2():
     string = open(input_filename(11)).read()
     table = parse_octopus_energy(string)
     step = octopus_allflash(table)
+    assert step == 265, f'{step=} != 265'
     print(f'Day 11 Part 2 Solution: {step=}')
