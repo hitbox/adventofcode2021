@@ -88,13 +88,15 @@ def day11_part1():
     flashes = octopus_flashes(string, 100)
     print(f'Day 11 Part 1 Solution: {flashes=}')
 
+def is_allflash(table):
+    return all(cell == 0 for row in table for cell in row)
+
 def octopus_allflash(table):
     step = 0
-    while True:
+    while not is_allflash(table):
         octopus_step(table)
         step += 1
-        if all(cell == 0 for row in table for cell in row):
-            return step
+    return step
 
 def day11_part2():
     """
