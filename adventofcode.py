@@ -10,7 +10,10 @@ from least_amount_fuel import least_amount_fuel
 
 from day08 import day08_part1
 from day08 import day08_part2
+from day11 import day11_part1
+from day11 import day11_part2
 from util import input_filename
+from util import iter_table_indexes
 
 class AdventOfError(Exception):
     pass
@@ -640,11 +643,6 @@ def adjacent_height_indexes(heightmap, row, col):
     if col-1 >= 0:
         yield row, col - 1
 
-def iter_table_indexes(t):
-    for r, row in enumerate(t):
-        for c, cell in enumerate(row):
-            yield (r, c)
-
 def tables_match(t1, t2):
     assert len(t1) == len(t2)
     for r1, r2 in zip(t1, t2):
@@ -889,24 +887,43 @@ def day10_part2():
     assert middle == 3094671161, f'{middle=} != 3094671161'
     print(f'Day 10 Part 2 Solution: {middle=}')
 
-def main(argv=None):
-    parser = argparse.ArgumentParser()
-    parser.add_argument('day')
-    parser.add_argument('part', choices=[1, 2], type=int)
-    args = parser.parse_args(argv)
+def runall(args):
+    _func_re = re.compile('day\d{2}_part\d')
+    funcs = []
+    for name in globals():
+        if _func_re.match(name):
+            funcs.append(name)
 
-    _day_re = re.compile('day\d{2}')
+    funcs.sort()
+    for funcname in funcs:
+        try:
+            globals()[funcname]()
+        except NotImplementedError as e:
+            print(e)
 
-    if not _day_re.match(args.day):
-        parser.error(f'command must match pattern {_day_re.pattern}.')
-
-    funcname = f'{args.day}_part{args.part}'
+def runday(args):
+    funcname = f'day{args.day:02d}_part{args.part}'
     try:
         func = globals()[funcname]
     except KeyError:
-        parser.error(f'command {funcname} not found.')
-
+        raise AdventOfError(f'command {funcname} not found.')
     func()
+
+def main(argv=None):
+    parser = argparse.ArgumentParser()
+    subparsers = parser.add_subparsers()
+    parser_all = subparsers.add_parser('all')
+    parser_all.set_defaults(func=runall)
+    parser_day = subparsers.add_parser('day')
+    parser_day.add_argument('day', type=int)
+    parser_day.add_argument('part', choices=[1,2], type=int)
+    parser_day.set_defaults(func=runday)
+    args = parser.parse_args(argv)
+
+    args = vars(args)
+    func = args['func']
+    del args['func']
+    func(argparse.Namespace(**args))
 
 if __name__ == '__main__':
     main()
