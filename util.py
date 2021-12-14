@@ -9,3 +9,6 @@ def iter_table_indexes(table):
         for coli, cell in enumerate(row):
             yield (rowi, coli)
 
+def readinput(day_number):
+    with open(input_filename(day_number)) as fp:
+        return fp.read()

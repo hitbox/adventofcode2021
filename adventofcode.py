@@ -16,6 +16,8 @@ from day12 import day12_part1
 from day12 import day12_part2
 from day13 import day13_part1
 from day13 import day13_part2
+from day14 import day14_part1
+from day14 import day14_part2
 from util import input_filename
 from util import iter_table_indexes
 
